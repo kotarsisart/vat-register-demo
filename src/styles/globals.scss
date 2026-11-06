@@ -1,0 +1,57 @@
+
+:root {
+  // Typography
+  font-family: Inter, system-ui, sans-serif;
+
+  // Text
+  --color-text: #242333;
+  --color-text-muted: #716d80;
+  --color-text-secondary: #565268;
+
+  // Brand / interactive
+  --color-primary: #6554b5;
+  --color-focus: #8672dc;
+
+  // Surfaces
+  --color-background: #f8f8fb;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f3fc;
+  --color-surface-subtle: #efecf9;
+
+  // Borders
+  --color-border: #eae8f0;
+  --color-border-input: #dcd8e8;
+
+  // Radius
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+
+html {
+  @media (min-width: 768px) {
+    scrollbar-gutter: stable;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
