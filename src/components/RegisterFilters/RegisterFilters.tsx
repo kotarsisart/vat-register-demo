@@ -59,6 +59,7 @@ export function RegisterFilters({ filters, onChange, onReset }: Props) {
         <label>
           Rok
           <select
+            name="year"
             value={filters.year}
             onChange={(event) => updateFilter("year", event.target.value)}
           >
@@ -71,6 +72,7 @@ export function RegisterFilters({ filters, onChange, onReset }: Props) {
         <label>
           Miesiąc
           <select
+            name="month"
             value={filters.month}
             onChange={(event) => updateFilter("month", event.target.value)}
           >
@@ -86,6 +88,7 @@ export function RegisterFilters({ filters, onChange, onReset }: Props) {
         <label>
           Rodzaj operacji
           <select
+            name="operationType"
             value={filters.type}
             onChange={(event) => updateFilter("type", event.target.value)}
           >
@@ -98,6 +101,7 @@ export function RegisterFilters({ filters, onChange, onReset }: Props) {
         <label>
           Kod JPK V7
           <select
+          	name="jpkCode"
             value={filters.vatCode}
             onChange={(event) => updateFilter("vatCode", event.target.value)}
           >
@@ -111,6 +115,7 @@ export function RegisterFilters({ filters, onChange, onReset }: Props) {
         <label>
           Seria dokumentu
           <select
+          	name="documentSeries"
             value={filters.series}
             onChange={(event) => updateFilter("series", event.target.value)}
           >

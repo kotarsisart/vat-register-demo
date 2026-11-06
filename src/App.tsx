@@ -110,6 +110,15 @@ function App() {
       document.ksefNumber ?? "",
     ];
 
+    const isShortNumericQuery = /^\d{1,2}$/.test(query);
+
+    if (isShortNumericQuery) {
+      const lastNumber = document.documentNumber.match(/(\d+)$/)?.[1];
+
+      return lastNumber !== undefined &&
+        Number(lastNumber) === Number(query);
+    }
+
     return searchableFields.some((value) =>
       value.toLocaleLowerCase("pl-PL").includes(query),
     );
@@ -193,9 +202,10 @@ function App() {
 
                   <input
                     type="search"
+                    name="documentSearch"
+                    placeholder="Szukaj kontrahenta lub dokumentu..."
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Szukaj kontrahenta lub dokumentu..."
                   />
                 </label>
 
