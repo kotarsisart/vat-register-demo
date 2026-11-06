@@ -61,13 +61,13 @@
 }
 
 .statusBadge {
-  background-color: #fff3dc;
-  color: var(--color-warning);
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .demoBadge {
-  background-color: #e6f4f1;
-  color: var(--color-primary);
+  color: var(--color-demo-text);
+  background-color: var(--color-demo-bg);
 }
 
 .warning {
@@ -75,10 +75,10 @@
   align-items: flex-start;
   gap: 10px;
   padding: 14px 16px;
-  background-color: #fff8e9;
-  border: 1px solid #f2dfb3;
+  background-color: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
   border-radius: var(--radius-md);
-  color: var(--color-warning);
+  color: var(--color-warning-text);
 
   svg {
     flex-shrink: 0;

@@ -22,6 +22,16 @@
   --color-border: #eae8f0;
   --color-border-input: #dcd8e8;
 
+  // Status: warning
+  --color-warning-text: #965600;
+  --color-warning-bg: #fff7e7;
+  --color-warning-border: #f0d8a8;
+
+  // Status: demo
+  --color-demo-text: #6554b5;
+  --color-demo-bg: #efecff;
+  --color-demo-border: #ddd5ff;
+
   // Radius
   --radius-sm: 10px;
   --radius-md: 12px;
@@ -31,6 +41,38 @@
   background-color: var(--color-background);
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  // Text
+  --color-text: #f0eef7;
+  --color-text-muted: #aaa6bc;
+  --color-text-secondary: #c4bfd6;
+
+  // Brand / interactive
+  --color-primary: #b4a2ff;
+  --color-focus: #a995ff;
+
+  // Surfaces
+  --color-background: #171720;
+  --color-surface: #23232f;
+  --color-surface-hover: #302c42;
+  --color-surface-subtle: #353046;
+
+  // Borders
+  --color-border: #393746;
+  --color-border-input: #555067;
+
+  // Status: warning
+  --color-warning-text: #f4c77e;
+  --color-warning-bg: #342a20;
+  --color-warning-border: #665039;
+
+  // Status: demo
+  --color-demo-text: #c1b0ff;
+  --color-demo-bg: #342d4d;
+  --color-demo-border: #534576;
+}
 
 html {
   @media (min-width: 768px) {
@@ -42,10 +84,6 @@ html {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-}
-
 button,
 input,
 select {
@@ -54,4 +92,17 @@ select {
 
 button {
   cursor: pointer;
+}
+
+body {
+  margin: 0;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
 }

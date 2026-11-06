@@ -20,6 +20,9 @@ import { useDocumentTags } from "./hooks/useDocumentTags";
 
 import styles from "./App.module.scss";
 
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "./hooks/useTheme";
+
 const initialFilters: FilterValues = {
   year: "",
   month: "",
@@ -33,6 +36,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [dataStatus, setDataStatus] = useState<DataStatus>("filled");
+  const { theme, toggleTheme } = useTheme();
 
   const [pageSize, setPageSize] = useState<number>(() => {
     try {
@@ -122,10 +126,24 @@ function App() {
       <div className={styles.container}>
         <div className={styles.screenContent}>
           <header className={styles.header}>
-            <h1 className={styles.title}>Rejestry i VAT</h1>
-            <p className={styles.description}>
-              Przegląd dokumentów i rozliczeń VAT
-            </p>
+            <div>
+              <h1 className={styles.title}>Rejestry i VAT</h1>
+              <p className={styles.description}>
+                Przegląd dokumentów i rozliczeń VAT
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+              aria-label={
+                theme === "dark" ? "Włącz jasny motyw" : "Włącz ciemny motyw"
+              }
+              title={theme === "dark" ? "Jasny motyw" : "Ciemny motyw"}
+            >
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </header>
 
           <RegisterContext />

@@ -1,21 +1,23 @@
 # VAT Register Demo
 
-A responsive frontend demo of a VAT register management interface, built with React and TypeScript.
+A responsive frontend demo of a VAT register management interface, built with React, TypeScript, and SCSS Modules.
 
-The project presents a redesigned interface for browsing and managing sales and purchase documents using sample accounting data.
+The project demonstrates a modern redesign of an accounting interface for browsing sales and purchase registers, analyzing VAT amounts, and managing document views.
 
 ## Features
 
-- Separate registers for sales and purchases
-- Search and filtering of accounting documents
-- VAT summaries and breakdown by tax rate
-- Expandable document details
-- Responsive desktop and mobile layouts
-- CSV export
-- Print-friendly register view
-- Document tags stored locally
-- Configurable pagination
-- Demo states: populated, empty, and error
+- **Sales and purchase registers** with sample accounting documents
+- **Search and filtering** by year, month, operation type, JPK V7 code, and document series
+- **VAT summaries** with net, tax, and gross totals
+- **VAT breakdown** by tax rate
+- **Expandable document details** in desktop and mobile layouts
+- **Responsive design** optimized for desktop, tablet, and mobile screens
+- **Light and dark themes** with system preference detection and persistent selection
+- **CSV export** of filtered documents
+- **Print-friendly view** for register reports
+- **Document tags** stored in local storage
+- **Configurable pagination**
+- **Demo states** for populated, empty, and error scenarios
 
 ## Tech Stack
 
@@ -27,34 +29,30 @@ The project presents a redesigned interface for browsing and managing sales and 
 
 ## Getting Started
 
-**Requirements:** Node.js and npm.
+Requires Node.js and npm.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local URL displayed in the terminal.
+The development server URL will appear in the terminal.
 
-## Quality Checks
+## Production Build
 
 ```bash
 npm run lint
 npm run build
+npm run preview
 ```
 
-## Demo Data
+## Project Notes
 
-All accounting documents are fictional and intended for demonstration purposes only.
-
-The application runs entirely in the browser and does not require a backend or external API.
-
-Some user preferences and document tags are saved in the browser's local storage.
-
-## Deployment
-
-The application can be deployed as a static site using Vercel or another compatible hosting platform.
+- All accounting data is fictional and used exclusively for demonstration.
+- The application runs entirely in the browser without a backend.
+- Theme preferences, document tags, and pagination settings are stored locally.
+- CSV export and printing operate on the currently filtered document set.
 
 ## Disclaimer
 
-This project is a frontend demonstration, not a production accounting system.
+This project is a frontend demonstration and is not intended for production accounting or tax reporting.
