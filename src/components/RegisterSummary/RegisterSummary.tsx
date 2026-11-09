@@ -1,5 +1,6 @@
 import type { RegisterSummary as Summary } from "../../utils/calculateSummary";
 import { formatCurrency } from "../../utils/formatCurrency";
+
 import styles from "./RegisterSummary.module.scss";
 
 interface Props {
@@ -7,28 +8,43 @@ interface Props {
 }
 
 export function RegisterSummary({ summary }: Props) {
-  const items = [
-    { label: "Netto", value: summary.net },
-    { label: "VAT", value: summary.vat },
-    { label: "Brutto", value: summary.gross },
-  ];
-
   return (
     <section
       className={styles.summary}
       aria-label="Podsumowanie rejestru"
     >
-      {items.map(({ label, value }) => (
-        <div
-          className={styles.item}
-          key={label}
-        >
-          <span className={styles.label}>{label}</span>
-          <strong className={styles.value}>
-            {formatCurrency(value)}
+      <span className={styles.eyebrow}>
+        PODSUMOWANIE FINANSOWE
+      </span>
+
+      <h2>Wartość brutto</h2>
+
+      <strong className={styles.hero}>
+        {formatCurrency(summary.gross)}
+      </strong>
+
+      <div className={styles.metrics}>
+        <div>
+          <span>Wartość netto</span>
+
+          <strong>
+            {formatCurrency(summary.net)}
           </strong>
         </div>
-      ))}
+
+        <div>
+          <span>Podatek VAT</span>
+
+          <strong>
+            {formatCurrency(summary.vat)}
+          </strong>
+        </div>
+      </div>
+
+      <p className={styles.note}>
+        Wartości obliczone na podstawie aktualnie wyświetlanych
+        dokumentów.
+      </p>
     </section>
   );
 }

@@ -1,59 +1,123 @@
+
 import type { VatBreakdownItem } from "../../utils/calculateVatBreakdown";
 import { formatCurrency } from "../../utils/formatCurrency";
+
 import styles from "./VatBreakdown.module.scss";
 
 interface Props {
   items: VatBreakdownItem[];
 }
 
+const colors = [
+  "#6554b5",
+  "#a995e7",
+  "#d2c8f4",
+  "#b7b2c7",
+  "#e4e0ed",
+];
+
 export function VatBreakdown({ items }: Props) {
-  const totalNet = items.reduce((sum, item) => sum + item.net, 0);
+  const totalNet = items.reduce(
+    (sum, item) => sum + item.net,
+    0,
+  );
+
+  const segments = items.reduce<string[]>((acc, item, index) => {
+    const portion =
+      totalNet > 0 ? (item.net / totalNet) * 100 : 0;
+
+    const from = acc.reduce((sum, segment) => {
+      const end = Number(segment.match(/([\d.]+)%$/)?.[1] ?? 0);
+      return Math.max(sum, end);
+    }, 0);
+
+    const to = from + portion;
+
+    return [
+      ...acc,
+      `${colors[index % colors.length]} ${from}% ${to}%`,
+    ];
+  }, []);
+
+  const chartBackground = segments.length
+    ? `conic-gradient(${segments.join(", ")})`
+    : "var(--color-surface-subtle)";
 
   return (
-    <section className={styles.section} aria-label="Struktura VAT">
+    <section
+      className={styles.section}
+      aria-label="Struktura VAT"
+    >
       <div className={styles.heading}>
+        <span className={styles.eyebrow}>
+          ANALIZA PODATKOWA
+        </span>
+
         <h2>Struktura VAT</h2>
-        <span>Udział wartości netto według stawek VAT</span>
+
+        <p>Udział wartości netto według stawek VAT</p>
       </div>
 
       {items.length === 0 ? (
-        <p className={styles.empty}>Brak danych do wyświetlenia.</p>
+        <p className={styles.empty}>
+          Brak danych do wyświetlenia.
+        </p>
       ) : (
-        <div className={styles.list}>
-          {items.map((item) => {
-            const percentage = totalNet > 0
-              ? (item.net / totalNet) * 100
-              : 0;
+        <>
+          <div
+            className={styles.chart}
+            role="img"
+            aria-label={items
+              .map(
+                (item) =>
+                  `${item.rate}: ${
+                    totalNet
+                      ? ((item.net / totalNet) * 100).toFixed(1)
+                      : 0
+                  }%`,
+              )
+              .join(", ")}
+            style={{ background: chartBackground }}
+          >
+            <div className={styles.chartCenter}>
+              <span>Łącznie netto</span>
 
-            return (
-              <div className={styles.item} key={item.rate}>
-                <div className={styles.itemHeading}>
-                  <strong>{item.rate}</strong>
-                  <span>{percentage.toFixed(1)}%</span>
-                </div>
+              <strong>
+                {formatCurrency(totalNet)}
+              </strong>
+            </div>
+          </div>
 
-                <div
-                  className={styles.track}
-                  role="progressbar"
-                  aria-label={`Udział stawki ${item.rate}`}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Number(percentage.toFixed(1))}
-                >
-                  <div
-                    className={styles.fill}
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
+          <div className={styles.legend}>
+            {items.map((item, index) => (
+              <div
+                key={item.rate}
+                className={styles.legendRow}
+              >
+                <span
+                  className={styles.dot}
+                  style={{
+                    background: colors[index % colors.length],
+                  }}
+                />
 
-                <div className={styles.amounts}>
-                  <span>Netto: {formatCurrency(item.net)}</span>
-                  <span>VAT: {formatCurrency(item.vat)}</span>
-                </div>
+                <strong>{item.rate}</strong>
+
+                <span>
+                  {totalNet
+                    ? ((item.net / totalNet) * 100).toFixed(1)
+                    : 0}
+                  %
+                </span>
+
+                <small>
+                  Netto: {formatCurrency(item.net)} · VAT:{" "}
+                  {formatCurrency(item.vat)}
+                </small>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </section>
   );

@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { SlidersHorizontal, X } from "lucide-react";
 
 import styles from "./RegisterFilters.module.scss";
 
@@ -12,130 +13,295 @@ export interface FilterValues {
 }
 
 interface Props {
+  open: boolean;
+  onClose: () => void;
   filters: FilterValues;
   onChange: (filters: FilterValues) => void;
   onReset: () => void;
 }
 
 const months = [
-  "Styczeń", "Luty", "Marzec", "Kwiecień",
-  "Maj", "Czerwiec", "Lipiec", "Sierpień",
-  "Wrzesień", "Październik", "Listopad", "Grudzień",
+  "Styczeń",
+  "Luty",
+  "Marzec",
+  "Kwiecień",
+  "Maj",
+  "Czerwiec",
+  "Lipiec",
+  "Sierpień",
+  "Wrzesień",
+  "Październik",
+  "Listopad",
+  "Grudzień",
 ];
 
-export function RegisterFilters({ filters, onChange, onReset }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
+export function RegisterFilters({
+  open,
+  onClose,
+  filters,
+  onChange,
+  onReset,
+}: Props) {
+  const [draft, setDraft] = useState(filters);
 
-  const activeCount = Object.values(filters).filter(Boolean).length;
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  function updateFilter(key: keyof FilterValues, value: string) {
-    onChange({ ...filters, [key]: value });
-  }
+  // Lock background scrolling and manage focus while the drawer is open.
+  useEffect(() => {
+    if (!open) return;
 
-  return (
-    <section className={styles.filters} aria-label="Filtry dokumentów">
+    const previousOverflow = document.body.style.overflow;
+
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    document.body.style.overflow = "hidden";
+
+    const focusFrame = requestAnimationFrame(() => {
+      closeRef.current?.focus();
+    });
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), select:not([disabled]), input:not([disabled])",
+        ),
+      );
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === last
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      cancelAnimationFrame(focusFrame);
+
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+
+      previousFocus?.focus();
+    };
+  }, [open, onClose]);
+
+  // Update individual draft fields without applying them immediately.
+  const update = (key: keyof FilterValues, value: string) => {
+    setDraft((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
+
+  const handleReset = () => {
+    const empty: FilterValues = {
+      year: "",
+      month: "",
+      type: "",
+      vatCode: "",
+      series: "",
+    };
+
+    setDraft(empty);
+    onReset();
+    onClose();
+  };
+
+  const handleApply = () => {
+    onChange(draft);
+    onClose();
+  };
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className={styles.overlay}>
       <button
         type="button"
-        className={styles.mobileToggle}
-        aria-expanded={isOpen}
-        aria-controls="register-filter-fields"
-        onClick={() => setIsOpen((current) => !current)}
-      >
-        <SlidersHorizontal size={18} aria-hidden="true" />
-        <span>Filtry {activeCount > 0 && `(${activeCount})`}</span>
-        {
-          isOpen
-          ? <ChevronUp size={18} aria-hidden="true" />
-          : <ChevronDown size={18} aria-hidden="true" />
-        }
-      </button>
+        className={styles.backdrop}
+        aria-label="Zamknij filtry"
+        onClick={onClose}
+      />
 
       <div
-        id="register-filter-fields"
-        className={`${styles.content} ${isOpen ? styles.open : ""}`}
+        ref={panelRef}
+        className={styles.drawer}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filters-heading"
       >
+        <header className={styles.header}>
+          <div>
+            <span className={styles.eyebrow}>
+              PERSONALIZACJA WIDOKU
+            </span>
 
-      <div className={styles.grid}>
-        <label>
-          Rok
-          <select
-            name="year"
-            value={filters.year}
-            onChange={(event) => updateFilter("year", event.target.value)}
-          >
-            <option value="">Wszystkie lata</option>
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-          </select>
-        </label>
+            <h2 id="filters-heading">
+              Filtry dokumentów
+            </h2>
+          </div>
 
-        <label>
-          Miesiąc
-          <select
-            name="month"
-            value={filters.month}
-            onChange={(event) => updateFilter("month", event.target.value)}
+          <button
+            ref={closeRef}
+            type="button"
+            className={styles.close}
+            onClick={onClose}
+            aria-label="Zamknij"
           >
-            <option value="">Wszystkie miesiące</option>
-            {months.map((month, index) => (
-              <option key={month} value={String(index + 1).padStart(2, "0")}>
-                {month}
-              </option>
-            ))}
-          </select>
-        </label>
+            <X size={21} />
+          </button>
+        </header>
 
-        <label>
-          Rodzaj operacji
-          <select
-            name="operationType"
-            value={filters.type}
-            onChange={(event) => updateFilter("type", event.target.value)}
-          >
-            <option value="">Wszystkie</option>
-            <option value="invoice">Faktura</option>
-            <option value="correction">Korekta</option>
-          </select>
-        </label>
+        <p className={styles.description}>
+          Wybierz kryteria. Wyniki zaktualizują się po zastosowaniu
+          filtrów.
+        </p>
 
-        <label>
-          Kod JPK V7
-          <select
-          	name="jpkCode"
-            value={filters.vatCode}
-            onChange={(event) => updateFilter("vatCode", event.target.value)}
-          >
-            <option value="">Wszystkie</option>
-            <option value="GTU_01">GTU_01</option>
-            <option value="GTU_02">GTU_02</option>
-            <option value="none">Bez kodu</option>
-          </select>
-        </label>
+        <div className={styles.fields}>
+          <fieldset className={styles.group}>
+            <legend>Okres</legend>
 
-        <label>
-          Seria dokumentu
-          <select
-          	name="documentSeries"
-            value={filters.series}
-            onChange={(event) => updateFilter("series", event.target.value)}
+            <div className={styles.pair}>
+              <label>
+                Rok
+
+                <select
+                  value={draft.year}
+                  onChange={(event) =>
+                    update("year", event.target.value)
+                  }
+                >
+                  <option value="">Wszystkie lata</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </label>
+
+              <label>
+                Miesiąc
+
+                <select
+                  value={draft.month}
+                  onChange={(event) =>
+                    update("month", event.target.value)
+                  }
+                >
+                  <option value="">Wszystkie miesiące</option>
+
+                  {months.map((month, index) => (
+                    <option
+                      key={month}
+                      value={String(index + 1).padStart(2, "0")}
+                    >
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset className={styles.group}>
+            <legend>Dokument</legend>
+
+            <label>
+              Rodzaj operacji
+
+              <select
+                value={draft.type}
+                onChange={(event) =>
+                  update("type", event.target.value)
+                }
+              >
+                <option value="">Wszystkie</option>
+                <option value="invoice">Faktura</option>
+                <option value="correction">Korekta</option>
+              </select>
+            </label>
+
+            <label>
+              Seria dokumentu
+
+              <select
+                value={draft.series}
+                onChange={(event) =>
+                  update("series", event.target.value)
+                }
+              >
+                <option value="">Wszystkie</option>
+
+                {["FV", "FK", "FZ", "FKZ"].map((series) => (
+                  <option key={series} value={series}>
+                    {series}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </fieldset>
+
+          <fieldset className={styles.group}>
+            <legend>Podatki</legend>
+
+            <label>
+              Kod JPK V7
+
+              <select
+                value={draft.vatCode}
+                onChange={(event) =>
+                  update("vatCode", event.target.value)
+                }
+              >
+                <option value="">Wszystkie</option>
+                <option value="GTU_01">GTU_01</option>
+                <option value="GTU_02">GTU_02</option>
+                <option value="none">Bez kodu</option>
+              </select>
+            </label>
+          </fieldset>
+        </div>
+
+        <footer className={styles.footer}>
+          <button
+            type="button"
+            className={styles.reset}
+            onClick={handleReset}
           >
-            <option value="">Wszystkie</option>
-            <option value="FV">FV</option>
-            <option value="FK">FK</option>
-            <option value="FZ">FZ</option>
-            <option value="FKZ">FKZ</option>
-          </select>
-        </label>
+            Wyczyść wszystko
+          </button>
+
+          <button
+            type="button"
+            className={styles.apply}
+            onClick={handleApply}
+          >
+            <SlidersHorizontal size={17} />
+            Zastosuj filtry
+          </button>
+        </footer>
       </div>
-
-        <button
-          type="button"
-          className={styles.reset}
-          onClick={onReset}
-        >
-          Wyczyść wszystko
-        </button>
-      </div>
-    </section>
+    </div>,
+    document.body,
   );
 }
